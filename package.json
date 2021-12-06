@@ -1,0 +1,14 @@
+{
+  "name": "admin-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "graphql": "^16.0.1",
+    "graphql-to-openapi": "^4.0.0",
+    "open-swagger-ui": "^1.1.0",
+    "sofa-api": "^0.11.0",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.2"
+  }
+}
