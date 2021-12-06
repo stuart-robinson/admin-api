@@ -1,39 +1,15 @@
 openapi: 3.0.0
 info:
-  title: Example API
+  title: Pension Administration API
   version: 3.0.0
 paths: 
   /customers:
-    post:
+    get: #TODO add example
       tags:
         - Customers
-      summary: Creates a new customer
-      requestBody:
-        required: true
-        description: "test"
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Customer'
-            example:
-              $ref: '#/components/examples/CustomerInput'
-              
-        
-
-      responses: 
-        201:
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Customer'
-        401:
-          $ref: '#/components/responses/Unauthorized'   # <-----
-        404:
-          $ref: '#/components/responses/NotFound' 
-    get:
-      tags:
-        - Customers
+      summary: List all customers
+      description: >
+        This operation lists all active customers. 
       parameters:
         - $ref: '#/components/parameters/pageNumber'
         - $ref: '#/components/parameters/itemsPerPage'
@@ -45,23 +21,52 @@ paths:
         404:
           $ref: '#/components/responses/NotFound' 
 
+    post: #TODO add example
+      tags:
+        - Customers
+      summary: Create a customer
+      description: >
+        This operation creates a new customer record and returns the newly created record
+      requestBody:
+        required: true
+        description: "test"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+            examples:
+              sample:
+                $ref: '#/components/examples/CustomerInput'
+              
+      responses: 
+        201:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+              examples:
+                sample:
+                  $ref: '#/components/examples/Customer'
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'   # <-----
+        404:
+          $ref: '#/components/responses/NotFound' 
+    
+
   /customers/{id}:
+    parameters:
+        - $ref: '#/components/parameters/customerId'
     get:
       tags:
         - Customers
-      summary: Gets a customer by ID
+      summary: Retrieve a customer
+      operationId: getCustomer
       description: >
-        A detailed description of the operation.
-        Use markdown for rich text representation,
-        such as **bold**, *italic*, and [links](https://swagger.io).
-      parameters:
-        - name: id
-          in: path
-          description: User ID
-          required: true
-          schema:
-            type: integer
-            format: int64    
+        This operation returns details of a customer
+      
       responses: 
         200:
           description: Success
@@ -69,16 +74,446 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Customer'
+              examples:
+                sample:
+                  $ref: '#/components/examples/Customer'
+
         401:
           $ref: '#/components/responses/Unauthorized'   # <-----
         404:
           $ref: '#/components/responses/NotFound'
 
-components:
+    patch: #TODO add example
+      tags:
+        - Customers
+      summary: Update a customer
+      operationId: getCustomer
+      description: >
+        This operation updates fields on the customer record. 
+      requestBody:
+        required: true
+        description: "test"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+            examples:
+              sample:
+                $ref: '#/components/examples/CustomerInput' #TODO: update to partial
+      responses:        
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+              examples:
+                sample:
+                  $ref: '#/components/examples/Customer'
+        400:
+          $ref: '#/components/responses/Invalid'          
+        401:
+          $ref: '#/components/responses/Unauthorized'   # <-----
+        404:
+          $ref: '#/components/responses/NotFound'
 
-  schemas:
+    delete:
+      tags:
+        - Customers
+      summary: Cancel customer account
+      operationId: cancelCustomer
+      description: >
+        This operation will close a customers account and generate an Expectation
+        for a refund if the account is within the 30 day cancellation period and has non-zero balance.
+        If the account is older than 30 days then an Outbound Transfer should 
+        be created.
+      responses: 
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+              examples:
+                sample:
+                  $ref: '#/components/examples/Customer'
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'   # <-----
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /payments:
+    get:
+      tags:
+        - Payments
+      summary: List all payments
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/itemsPerPage'
+      responses:
+        200:
+          description: OK
+        401:
+          $ref: '#/components/responses/Unauthorized'   # <-----
+        404:
+          $ref: '#/components/responses/NotFound' 
+          
+    post:
+      tags:
+        - Payments
+      summary: Create a payment
+      requestBody:
+        required: true
+        description: "test"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+            examples:
+              sample:
+                $ref: '#/components/examples/CustomerInput'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    $ref: '#/components/schemas/Payment/properties/id'
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized' 
+        404:
+          $ref: '#/components/responses/NotFound' 
     
+  /payments/{id}:
+    get:
+      tags:
+        - Payments
+      summary: Retrieve a payment
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/itemsPerPage'
+      responses:
+        200:
+          description: OK
+        401:
+          $ref: '#/components/responses/Unauthorized'   # <-----
+        404:
+          $ref: '#/components/responses/NotFound' 
 
+    delete:
+      tags:
+        - Payments
+      summary: Cancel a payment
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/itemsPerPage'
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'   # <-----
+        404:
+          $ref: '#/components/responses/NotFound' 
+
+
+  /inboundTransfers:
+    get:
+      tags:
+        - Inbound Transfers
+      summary: List all inbound transfers
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/itemsPerPage'
+      responses:
+        200:
+          description: OK
+        401:
+          $ref: '#/components/responses/Unauthorized'   # <-----
+        404:
+          $ref: '#/components/responses/NotFound' 
+    post:
+      tags:
+        - Inbound Transfers
+      summary: Create an inbound transfer
+      requestBody:
+        required: true
+        description: "test"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    $ref: '#/components/schemas/Transfer/properties/id'
+        401:
+          $ref: '#/components/responses/Unauthorized' 
+        404:
+          $ref: '#/components/responses/NotFound' 
+
+
+  /inboundTransfers/{id}:
+    get:
+      tags:
+        - Inbound Transfers
+      summary: Retrieve an inbound transfer
+      requestBody:
+        required: true
+        description: "test"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    $ref: '#/components/schemas/Transfer'
+        401:
+          $ref: '#/components/responses/Unauthorized' 
+        404:
+          $ref: '#/components/responses/NotFound' 
+
+    delete:
+      tags:
+        - Inbound Transfers
+      summary: Cancel an inbound transfer
+      requestBody:
+        required: true
+        description: "test"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+      responses:
+        201:
+          description: Cancelled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    $ref: '#/components/schemas/Transfer/properties/id'
+        401:
+          $ref: '#/components/responses/Unauthorized' 
+        404:
+          $ref: '#/components/responses/NotFound' 
+
+  /outboundTransfers:
+    post:
+      tags:
+        - Outbound Transfers
+      summary: Create an outbound transfer
+      requestBody:
+        required: true
+        description: "test"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    $ref: '#/components/schemas/Transfer/properties/id'
+        401:
+          $ref: '#/components/responses/Unauthorized' 
+        404:
+          $ref: '#/components/responses/NotFound' 
+    get:
+      tags:
+        - Outbound Transfers
+      summary: List transfers
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/itemsPerPage'
+      responses:
+        200:
+          description: OK
+        401:
+          $ref: '#/components/responses/Unauthorized'   # <-----
+        404:
+          $ref: '#/components/responses/NotFound' 
+    
+  /outboundTransfers/{id}:
+    get:
+      tags:
+        - Outbound Transfers
+      summary: Retrieve an inbound transfer
+      requestBody:
+        required: true
+        description: "test"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    $ref: '#/components/schemas/Transfer'
+        401:
+          $ref: '#/components/responses/Unauthorized' 
+        404:
+          $ref: '#/components/responses/NotFound' 
+    delete:
+      tags:
+        - Outbound Transfers
+      summary: Cancel an inbound transfer
+      requestBody:
+        required: true
+        description: "test"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transfer'
+      responses:
+        201:
+          description: Cancelled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    $ref: '#/components/schemas/Transfer/properties/id'
+        401:
+          $ref: '#/components/responses/Unauthorized' 
+        404:
+          $ref: '#/components/responses/NotFound' 
+
+  /expectations:
+    get:
+      tags:
+        - Expectations
+      summary: List all expectations
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/itemsPerPage'
+      responses:
+        200:
+          description: OK
+        401:
+          $ref: '#/components/responses/Unauthorized'   # <-----
+        404:
+          $ref: '#/components/responses/NotFound' 
+
+
+  
+  /tracing:
+    get:
+      tags:
+        - Pension Tracing
+      responses:
+        200:
+          description: Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    $ref: '#/components/schemas/Payment/properties/id'
+
+  /customers/{id}/valuations:
+    put:
+      tags:
+        - Valuations
+      parameters:
+        - $ref: '#/components/parameters/customerId'
+      responses:
+        201:
+          description: Insert or update valuations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    $ref: '#/components/schemas/Payment/properties/id'
+  /customers/{id}/beneficiaries:
+    get:
+      tags:
+        - Beneficiaries
+      parameters:
+        - $ref: '#/components/parameters/customerId'
+      responses:
+        200:
+          description: Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    $ref: '#/components/schemas/Payment/properties/id'
+    put:
+      tags:
+        - Beneficiaries
+      parameters:
+        - $ref: '#/components/parameters/customerId'
+      responses:
+        200:
+          description: Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    $ref: '#/components/schemas/Payment/properties/id'
+
+  /customers/{id}/documents:
+    get:
+      tags:
+        - Documents
+      parameters:
+        - $ref: '#/components/parameters/customerId'
+      responses:
+        200:
+          description: Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    $ref: '#/components/schemas/Payment/properties/id'
+
+
+components:
+  schemas:
     Customer:
       type: object
       required:
@@ -143,12 +578,12 @@ components:
           type: string
         dateOfBirth:
           $ref: '#/components/schemas/date'
-        lastestValuation:
+        latestValuation:
           type: integer
           readOnly: true
           format: int32
-        memberDeclarationAcceptedAt:
-          type: string
+        termsAcceptedAt:
+          $ref: '#/components/schemas/timestamp'
         employmentStatus:
           type: string
           enum:
@@ -162,7 +597,7 @@ components:
             - SelfEmployed
             - Unemployed
             - Director
-        countryOfBirth:
+        countryOfBirth: #TODO need to add countries we accept here
           type: string
         citizenship:
           description: add valid countries here
@@ -174,7 +609,7 @@ components:
             - Female
         address:
           $ref: '#/components/schemas/Address'
-        nationalInsuranceNumber:
+        nationalInsuranceNumber: #add regex here
           type: string
     TaxResidency:
       type: object
@@ -209,7 +644,6 @@ components:
         - createdAt
         - updatedAt
         - ISIN
-        - secclId
         - name
         - description
       properties:
@@ -230,8 +664,6 @@ components:
             - Sustainable
             - Shariah
         ISIN:
-          type: string
-        secclId:
           type: string
         factSheet:
           type: string
@@ -305,8 +737,6 @@ components:
           type: string
         updatedAt:
           type: string
-        airtableId:
-          type: string
         address:
           $ref: '#/components/schemas/Address'
         provider:
@@ -358,7 +788,7 @@ components:
             - Rejected
         statusUpdatedAt:
           type: string
-        user:
+        customer:
           $ref: '#/components/schemas/Customer'
         reference:
           type: string
@@ -407,7 +837,7 @@ components:
           type: string
         payment:
           $ref: '#/components/schemas/Payment'
-        user:
+        customer:
           $ref: '#/components/schemas/Customer'
     Payment:
       type: object
@@ -440,7 +870,67 @@ components:
             - Referral
             - Business
             - Personal
+            - Redress
             - Transfer
+        customer:
+          $ref: '#/components/schemas/Customer'
+    Expectation:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - createdDate
+        - contributionStatus
+        - penceAmount
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        createdDate:
+          type: string
+        secclTransactionId:
+          type: string
+        secclTransactionLinkId:
+          type: string
+        contributionFrequency:
+          type: string
+          enum:
+            - OneOff
+            - Monthly
+        contributionSource:
+          type: string
+          enum:
+            - TaxReclaim
+            - Referral
+            - Business
+            - Personal
+            - Redress
+            - Transfer
+        contributionStatus:
+          type: string
+          enum:
+            - Cancelled
+            - NotSubmitted
+            - Pending
+            - Completed
+            - Deleted
+        paymentMethod:
+          type: string
+          enum:
+            - BankTransfer
+            - DirectDebit
+            - GoCardless
+            - StandingOrder
+            - InstantPayment
+        penceAmount:
+          type: integer
+          format: int32
+        linkedPayment:
+          $ref: '#/components/schemas/Payment'
         customer:
           $ref: '#/components/schemas/Customer'
     PensionProvider:
@@ -534,7 +1024,7 @@ components:
         name:
           type: string
         normalizedName:
-          type: string
+          type: string 
         schemes:
           type: array
           items:
@@ -690,14 +1180,22 @@ components:
   
 
   parameters:
+    customerId: 
+      in: query
+      name: id
+      required: true
+      schema:
+        type: string
+      description: Customer ID
     pageNumber: 
       in: query
       name: pageNumber
       required: false
       schema:
         type: integer
-        minimum: 0
-      description: The number of page
+        minimum: 1
+        default: 1
+      description: Page number
     itemsPerPage:
       in: query
       name: perPage
@@ -705,11 +1203,17 @@ components:
       schema:
         type: integer
         minimum: 1
-        maximum: 50
-        default: 20
+        maximum: 500
+        default: 100
       description: The numbers of items to return per page.
 
   responses:
+    Invalid:
+      description: The request was invalid, often due to missing a required parameter.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     NotFound:
       description: The specified resource was not found
       content:
@@ -747,16 +1251,32 @@ components:
         nationalInsuranceNumber: JH771270C
         employmentStatus: Employed
         address:
-          $ref: '#/components/examples/AddressInput'
+          streetNumber: 1    
+          line1: Long Lane
+          postcode: SE1 4PG
+          country: UK
         
     Customer:
       value:
-        allOf: 
-        deactivatedAt: 
-          $ref: '#/components/schemas/timestamp/example'
+        id: 123
+        createdAt: 1995-09-07T10:40:52Z
+        updatedAt: 1995-09-07T10:40:52Z
+        title: Mr
+        firstName: Stuart
+        lastName: Robinson
+        dateOfBirth: 1983-10-13
+        email: stuart@stuart.cloud
+        phoneNumber: '06128527894'
+        gender: Male
+        citizenship: UK
+        nationalInsuranceNumber: JH771270C
+        employmentStatus: Employed
+        address:
+          streetNumber: 1    
+          line1: Long Lane
+          postcode: SE1 4PG
+          country: UK
         penId: PEN123
-        allOf: 
-          $ref: '#/components/examples/CustomerInput'
 
     AddressInput:
       value:
@@ -765,7 +1285,12 @@ components:
         postcode: SE1 4PG
         country: UK
 
-    AddressInput
+    Address:
+      value:
+        allOf: 
+          - $ref: '#/components/examples/defaultFields'
+          - $ref: '#/components/examples/AddressInput'
+
 
     
   
